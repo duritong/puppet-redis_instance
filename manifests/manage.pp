@@ -68,9 +68,16 @@ define redis_instance::manage(
   service{$service_name: }
 
   if $ensure == 'present' {
-    if $port { fail("You must set \$port for ${name}") }
+    if !$port { fail("You must set \$port for ${name}") }
     require redis_instance::base
     Group[$redis_group] -> User[$redis_user]
+
+    if $port != 6379 {
+      selinux::seport{
+        $port:
+          setype => 'redis_port_t';
+      }
+    }
 
     Disks::Lv_mount[$service_name]{
       owner => $redis_user,

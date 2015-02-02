@@ -1,2 +1,10 @@
 module redis_instance 1.0;
 
+require {
+  type redis_unit_file_t;
+  type redis_var_lib_t;
+  type redis_var_run_t;
+  type redis_var_run_t;
+  type redis_log_t;
+}
+

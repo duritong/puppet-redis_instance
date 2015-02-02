@@ -1,8 +1,9 @@
 # base setup for redis instances
 class redis_instance::base {
-  include redis::params
-  include redis::preinstall
-  include redis::install
+  class{'redis':
+    service_ensure => 'stopped',
+    service_enable => false,
+  }
   selinux::policy{
     'redis_instance':
       fc_file   => true,
