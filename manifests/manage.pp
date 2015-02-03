@@ -1,41 +1,47 @@
 # redis instance
 define redis_instance::manage(
-  $port                       = undef,
-  $ensure                     = 'present',
-  $redis_user                 = $name,
-  $redis_group                = $name,
-  $disk_size                  = '1G',
-  $bind                       = '127.0.0.1',
-  $databases                  = 16,
-  $dbfilename                 = 'dump.rdb',
-  $hash_max_ziplist_entries   = 512,
-  $hash_max_ziplist_value     = 64,
-  $list_max_ziplist_entries   = 512,
-  $list_max_ziplist_value     = 64,
-  $log_level                  = 'notice',
-  $maxclients                 = 10000,
-  $maxmemory                  = undef,
-  $maxmemory_policy           = undef,
-  $maxmemory_samples          = undef,
-  $no_appendfsync_on_rewrite  = false,
-  $port                       = 6379,
-  $rdbcompression             = true,
-  $requirepass                = undef,
-  $set_max_intset_entries     = 512,
-  $slowlog_log_slower_than    = 10000,
-  $slowlog_max_len            = 1024,
-  $syslog_enabled             = undef,
-  $syslog_facility            = undef,
-  $timeout                    = 0,
-  $ulimit                     = 65536,
-  $zset_max_ziplist_entries   = 128,
-  $zset_max_ziplist_value     = 64,
-  $masterauth                 = undef,
-  $repl_ping_slave_period     = 10,
-  $repl_timeout               = 60,
-  $slave_read_only            = true,
-  $slave_serve_stale_data     = true,
-  $slaveof                    = undef,
+  $port                        = undef,
+  $ensure                      = 'present',
+  $redis_user                  = "redis-${name}",
+  $redis_group                 = "redis-${name}",
+  $disk_size                   = '1G',
+  $activerehashing             = true,
+  $appendfsync                 = 'everysec',
+  $appendonly                  = false,
+  $auto_aof_rewrite_min_size   = '64min',
+  $auto_aof_rewrite_percentage = 100,
+  $bind                        = '127.0.0.1',
+
+  $databases                   = 16,
+  $dbfilename                  = 'dump.rdb',
+  $hash_max_ziplist_entries    = 512,
+  $hash_max_ziplist_value      = 64,
+  $list_max_ziplist_entries    = 512,
+  $list_max_ziplist_value      = 64,
+  $log_level                   = 'notice',
+  $maxclients                  = 10000,
+  $maxmemory                   = undef,
+  $maxmemory_policy            = undef,
+  $maxmemory_samples           = undef,
+  $no_appendfsync_on_rewrite   = false,
+  $port                        = 6379,
+  $rdbcompression              = true,
+  $requirepass                 = undef,
+  $set_max_intset_entries      = 512,
+  $slowlog_log_slower_than     = 10000,
+  $slowlog_max_len             = 1024,
+  $syslog_enabled              = undef,
+  $syslog_facility             = undef,
+  $timeout                     = 0,
+  $ulimit                      = 65536,
+  $zset_max_ziplist_entries    = 128,
+  $zset_max_ziplist_value      = 64,
+  $masterauth                  = undef,
+  $repl_ping_slave_period      = 10,
+  $repl_timeout                = 60,
+  $slave_read_only             = true,
+  $slave_serve_stale_data      = true,
+  $slaveof                     = undef,
 ){
 
   $service_name = "redis-${name}"
@@ -47,6 +53,7 @@ define redis_instance::manage(
   $daemonize    = false
   $pid_dir      = "/var/run/${service_name}"
   $pid_file     = "${pid_dir}/redis-server.pid"
+
   group{$redis_group:
     ensure => $ensure
   }
@@ -69,27 +76,37 @@ define redis_instance::manage(
 
   if $ensure == 'present' {
     if !$port { fail("You must set \$port for ${name}") }
-    require redis_instance::base
+    require ::redis_instance::base
     Group[$redis_group] -> User[$redis_user]
 
     if $port != 6379 {
       selinux::seport{
         $port:
-          setype => 'redis_port_t';
+          setype => 'redis_port_t',
+          before => Service[$service_name],
       }
     }
 
     Disks::Lv_mount[$service_name]{
-      owner => $redis_user,
-      group => $redis_group,
-      mode  => '0640',
+      owner   => $redis_user,
+      group   => $redis_group,
+      mode    => '0750',
+      seltype => 'redis_var_lib_t',
     }
 
-    File[$log_dir,$pid_dir]{
-      ensure => directory,
-      owner  => $redis_user,
-      group  => $redis_group,
-      mode   => '0640',
+    File[$log_dir]{
+      ensure  => directory,
+      owner   => $redis_user,
+      group   => $redis_group,
+      mode    => '0640',
+      seltype => 'redis_log_t',
+    }
+    File[$pid_dir]{
+      ensure  => directory,
+      owner   => $redis_user,
+      group   => $redis_group,
+      mode    => '0640',
+      seltype => 'redis_var_run_t',
     }
     File[$config_file]{
       content => template('redis/redis.conf.erb'),
@@ -102,6 +119,7 @@ define redis_instance::manage(
     File[$systemd_file]{
       content => template('redis_instance/systemd/redis-instance.erb'),
       require => File[$config_file],
+      seltype => 'redis_unit_file_t',
       owner   => root,
       group   => 0,
       mode    => '0644'

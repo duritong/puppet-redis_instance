@@ -1,8 +1,7 @@
 # base setup for redis instances
 class redis_instance::base {
-  class{'redis':
-    service_ensure => 'stopped',
-    service_enable => false,
+  package{'redis':
+    ensure => present,
   }
   selinux::policy{
     'redis_instance':

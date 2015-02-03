@@ -1,0 +1,48 @@
+{
+  "name": "duritong-redis_instance",
+  "version": "1.0.0",
+  "author": "duritong",
+  "summary": "Redis instances",
+  "license": "GPLv2"
+  "source": "https://github.com/duritong/puppet-redis_instance",
+  "project_page": "https://github.come/duritong/puppet-redis_instance/",
+  "issues_url": "https://github.com/duritong/puppet-redis_instance/issues",
+  "description": "Manage a set of redis instances"
+  "tags": [
+    "redis",
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "7.0",
+      ]
+    },
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "7.0",
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "name": "pe",
+      "version_requirement": "3.x"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "duritong/disks",
+      "version_requirement": ">= 0.0.1"
+    },
+    {
+      "name": "duritong/selinux",
+      "version_requirement": ">= 0.0.1"
+    },
+    {
+      "name": "arioch/redis",
+      "version_requirement": ">= 1.0.4"
+    }
+  ]
+}
