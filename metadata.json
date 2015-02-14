@@ -3,25 +3,25 @@
   "version": "1.0.0",
   "author": "duritong",
   "summary": "Redis instances",
-  "license": "GPLv2"
+  "license": "GPLv2",
   "source": "https://github.com/duritong/puppet-redis_instance",
   "project_page": "https://github.come/duritong/puppet-redis_instance/",
   "issues_url": "https://github.com/duritong/puppet-redis_instance/issues",
-  "description": "Manage a set of redis instances"
+  "description": "Manage a set of redis instances",
   "tags": [
-    "redis",
+    "redis"
   ],
   "operatingsystem_support": [
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
-        "7.0",
+        "7.0"
       ]
     },
     {
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
-        "7.0",
+        "7.0"
       ]
     }
   ],
